@@ -80,7 +80,7 @@ struct Data
     uint32_t timestamp;
     uint8_t counter;
 
-    String ps;
+    String state;
 
     // 160 bits
     double gps_latitude;
@@ -151,7 +151,7 @@ struct nowTime{ // millis
     uint32_t log_data = LOG_GROUND_INTERVAL;
     uint32_t save_data_to_sd_card = 1000;
     uint32_t print_data = 10; // Serail monitor
-    uint32_t fsm_eval = 10; // Stage
+    uint32_t check_state = 10; // Stage
 }nowTime;
 
 // delay time on function
@@ -167,7 +167,7 @@ struct plusTime{
     uint32_t log_data = millis();
     uint32_t save_data_to_sd_card = millis();
     uint32_t print_data = millis(); // Serail monitor
-    uint32_t fsm_eval = millis(); // Stage
+    uint32_t check_state = millis(); // Stage
 }plusTime;
 
 // variables
@@ -191,7 +191,7 @@ extern void save_data();
 
 extern void print_data();
 
-extern void fsm_eval();
+extern void check_state();
 
 extern void set_txflag();
 
@@ -346,9 +346,9 @@ void loop()
         nowTime.print_data = millis();
     }
 
-    if(millis() > nowTime.fsm_eval + plusTime.fsm_eval){
-        fsm_eval();
-        nowTime.fsm_eval = millis();
+    if(millis() > nowTime.check_state + plusTime.check_state){
+        check_state();
+        nowTime.check_state = millis();
     }
 }
 
@@ -412,7 +412,7 @@ void construct_data()
     constructed_data += 
         String(data.counter) + ',' +
         String(data.timestamp) + ',' +
-        data.ps + ',' +
+        data.state + ',' +
         String(data.gps_latitude, 6) + ',' +
         String(data.gps_longitude, 6) + ',' +
         String(data.altitude, 4) + ',' +
@@ -428,7 +428,7 @@ void construct_data()
         "<20>" + ',' + // DEVICE NO 
         String(params.center_freq) + ',' +
         String(data.counter) + ',' +
-        data.ps + ',' +
+        data.state + ',' +
         String(data.gps_latitude, 6) + ',' +
         String(data.gps_longitude, 6) + ',' +
         String(data.altitude, 4) + ',' +
@@ -483,42 +483,37 @@ void transmit_data()
     }
 }
 
-void fsm_eval()
+void check_state()
 {
-
-    static bool state_satisfaction = false;
-    int32_t static launched_time = 0;
-    static algorithm::Sampler sampler[2];
-
     const double alt_x = data.altitude - ground_truth.altitude_offset;
     const double vel_x = data.vel.x;
     const double acc = data.acc.x;
 
-    if(data.ps == "GROUND")
+    if(data.state == "GROUND")
     {
         // Next: WAIT FOR POWER
         if(acc >= LAUNCH_ACC){
             plusTime.log_data = LOG_PAD_PREOP_INTERVAL;
-            data.ps = "RISING";
+            data.state = "RISING";
         }
     }
-    else if(data.ps == "RISING")
+    else if(data.state == "RISING")
     {
         // Next: WAIT FOR APOGEE
         if(acc < LAUNCH_ACC){
             plusTime.log_data = LOG_APOGEE_INTERVAL;
-            data.ps = "APOGEE";
+            data.state = "APOGEE";
         }
     }
-    else if(data.ps == "APOGEE")
+    else if(data.state == "APOGEE")
     {
         // Next: AT APOGEE WAIT FOR LANDING
         if(vel_x < APOGEE_VEL){
             plusTime.log_data = LOG_LANDED_INTERVAL;
-            data.ps = "LANDED";
+            data.state = "LANDED";
         }
     }
-    else if(data.ps == "LANDED")
+    else if(data.state == "LANDED")
     {
         // Next: WAIT FOR LANDED
     }
@@ -541,7 +536,7 @@ void print_data()
 
     Serial.println("---- STATES ----");
     Serial.print("STATE: ");
-    Serial.println(data.ps);
+    Serial.println(data.state);
 
     Serial.println("---- GPS ----");
     Serial.print("Latitude: ");
@@ -579,6 +574,7 @@ void set_txflag()
         SD_CARD
         TIME TO MEASURE SENSOR
         TIME CHECK AND CHANGE STAGE
+        STATE FOR DEPLOY
 
     TEST
         GPS
