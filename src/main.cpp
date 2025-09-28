@@ -578,6 +578,7 @@ void set_txflag()
         LED
         SD_CARD
         TIME TO MEASURE SENSOR
+        TIME CHECK AND CHANGE STAGE
 
     TEST
         GPS
