@@ -502,10 +502,10 @@ void check_state()
         // Next: WAIT FOR APOGEE
         if(acc < LAUNCH_ACC){
             plusTime.log_data = LOG_APOGEE_INTERVAL;
-            data.state = "APOGEE";
+            data.state = "COASTING";
         }
     }
-    else if(data.state == "APOGEE")
+    else if(data.state == "COASTING")
     {
         // Next: AT APOGEE WAIT FOR LANDING
         if(vel_x < APOGEE_VEL){
