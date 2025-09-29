@@ -28,15 +28,15 @@
 //
  
 #include <Wire.h>
- 
+#include <orbit_pin_def.h>
 #define SDA_PIN PB7
 #define SCL_PIN PB6
 
 void setup() 
 {	
-//   Wire.begin(SDA_PIN, SCL_PIN);
+  Wire.begin(PIN_SDA, PIN_SCL);
  
-  Serial.begin(9600);
+  Serial.begin(115200);
   
   while (!Serial);             // Leonardo: wait for serial monitor
   Serial.println("\nI2C Scanner");

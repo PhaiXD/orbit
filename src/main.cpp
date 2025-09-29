@@ -4,7 +4,7 @@
 // #include <STM32LowPower.h>
 // #include "vt_linalg"
 // #include "vt_kalman"
-// #include "File_Utility.h"
+#include "File_Utility.h"
 
 #include <Wire.h>
 #include <SPI.h>
@@ -18,7 +18,7 @@
 #include "SdFat.h"
 #include "RadioLib.h"
 
-#include "orbit_peripheral_def.h"
+#include "orbit_peripheral_def_KENDO.h"
 #include "orbit_pin_def.h"
 #include "orbit_state_def.h"
 
@@ -95,9 +95,9 @@ struct Data
     // 384 bits
     struct
     {
-        float x;
-        float y;
-        float z;
+        float x = 0;
+        float y = 0;
+        float z = 0;
     } acc,vel;
 } data;
 
@@ -139,7 +139,7 @@ String constructed_data;
 String tx_data;
 
 // time on function
-struct nowTime{ // millis
+struct plusTime{ // millis
     uint32_t led_control = 10; // LED
     uint32_t read_gnss = 10; // GPS
     uint32_t read_bme = 10; // BME
@@ -150,12 +150,12 @@ struct nowTime{ // millis
     uint32_t save_data = 100; // SD card
     uint32_t log_data = LOG_GROUND_INTERVAL;
     uint32_t save_data_to_sd_card = 1000;
-    uint32_t print_data = 10; // Serail monitor
+    uint32_t print_data = 2000; // Serail monitor
     uint32_t check_state = 10; // Stage
-}nowTime;
+}plusTime;
 
 // delay time on function
-struct plusTime{
+struct nowTime{
     uint32_t led_control = millis(); // LED
     uint32_t read_gnss = millis(); // GPS
     uint32_t read_bme = millis(); // BME
@@ -168,7 +168,7 @@ struct plusTime{
     uint32_t save_data_to_sd_card = millis();
     uint32_t print_data = millis(); // Serail monitor
     uint32_t check_state = millis(); // Stage
-}plusTime;
+}nowTime;
 
 // variables
 volatile bool wake_flag = false;
@@ -469,10 +469,11 @@ void save_data()
 void transmit_data()
 {
     // Tx Loop
-    if(millis() > nowTime.transmit_data + plusTime.transmit_data && tx_flag){
+    if(millis() > nowTime.send_data + plusTime.send_data && tx_flag){
         lora.startTransmit(tx_data);
         Serial.println("[TRANSMITTING...]"); 
         ++data.counter;
+        nowTime.send_data = millis();
     }
     // On Transmit
     if (!tx_flag)
@@ -561,6 +562,14 @@ void print_data()
     Serial.print(data.acc.y, 3);
     Serial.print("  Z: ");
     Serial.println(data.acc.z, 3);
+
+    Serial.println("---- VEL ----");
+    Serial.print("X: ");
+    Serial.print(data.vel.x, 3);
+    Serial.print("  Y: ");
+    Serial.print(data.vel.y, 3);
+    Serial.print("  Z: ");
+    Serial.println(data.vel.z, 3);
 }
 
 void set_txflag()
