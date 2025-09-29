@@ -1,10 +1,10 @@
 #include <Arduino.h>
-#include "Arduino_Extended.h"
-#include "lib_xcore"
-#include <STM32LowPower.h>
-#include "vt_linalg"
-#include "vt_kalman"
-#include "File_Utility.h"
+// #include "Arduino_Extended.h"
+// #include "lib_xcore"
+// #include <STM32LowPower.h>
+// #include "vt_linalg"
+// #include "vt_kalman"
+// #include "File_Utility.h"
 
 #include <Wire.h>
 #include <SPI.h>
@@ -13,7 +13,7 @@
 #include <Adafruit_Sensor.h>
 #include "LIS3DHTR.h"
 #include <Adafruit_BME280.h>
-#include <Servo.h>
+// #include <Servo.h>
 
 #include "SdFat.h"
 #include "RadioLib.h"
@@ -401,9 +401,9 @@ void read_imu()
 
 void calculate_vel()
 {
-    data.vel.x += data.acc.x * plusTime.read_imu;
-    data.vel.y += data.acc.y * plusTime.read_imu;
-    data.vel.z += data.acc.z * plusTime.read_imu;
+    data.vel.x += data.acc.x * (plusTime.read_imu/1000.0f);
+    data.vel.y += data.acc.y * (plusTime.read_imu/1000.0f);
+    data.vel.z += data.acc.z * (plusTime.read_imu/1000.0f);
 }
 
 void construct_data()
