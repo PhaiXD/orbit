@@ -22,18 +22,18 @@ volatile bool transmittedFlag = false;
 Adafruit_BME280 bme;
 TwoWire myWire(PB7, PB6);   // SDA = PB7, SCL = PB6
 
-// // ----- GPS -----
-// #include <TinyGPS++.h>
-// #include <SoftwareSerial.h>
-// TinyGPSPlus gps;
-// struct GPSData {
-//   double latitude = 0.0;
-//   double longitude = 0.0;
-//   float altitude = 0.0;
-//   uint32_t timestamp = 0;
-//   bool hasFix = false;
-// } gpsData;
-// HardwareSerial SerialGPS(2);
+// ----- GPS -----
+#include <TinyGPS++.h>
+#include <SoftwareSerial.h>
+TinyGPSPlus gps;
+struct GPSData {
+  double latitude = 0.0;
+  double longitude = 0.0;
+  float altitude = 0.0;
+  uint32_t timestamp = 0;
+  bool hasFix = false;
+} gpsData;
+HardwareSerial SerialGPS(2);
 
 
 int i = 0;
