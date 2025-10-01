@@ -424,7 +424,7 @@ void setup()
                << task_type(read_gnss, 100ul, millis, 2)
 
                << task_type(transmit_receive_data, 1000ul, millis, 252)
-               << task_type(print_data, 1000ul, millis, 253)
+            //    << task_type(print_data, 1000ul, millis, 253)
                << task_type(construct_data, 25ul, millis, 254)
                << (task_type(save_data, &log_interval, 255), pvalid.sd);
 
@@ -546,19 +546,19 @@ void construct_data()
 
     tx_data = "";
     csv_stream_crlf(tx_data)
-        << "<3>" // DEVICE NO
-        << params.center_freq
-        << data.counter
+        // << "<3>" // DEVICE NO
+        // << params.center_freq
+        // << data.counter
 
-        << nova::state_string(data.ps)
-        << String(data.gps_latitude, 6)
-        << String(data.gps_longitude, 6)
-        << String(data.altitude, 4)
-        << String(ground_truth.apogee, 4)
+        // << nova::state_string(data.ps)
+        // << String(data.gps_latitude, 6)
+        // << String(data.gps_longitude, 6)
+        // << String(data.altitude, 4)
+        // << String(ground_truth.apogee, 4)
 
-        << data.voltageMon
+        // << data.voltageMon
 
-        << data.last_ack
+        // << data.last_ack
         << data.last_nack;
 }
 
@@ -593,8 +593,8 @@ void save_data(time_type *interval_ms)
 
 void transmit_receive_data()
 {
-    lora.startTransmit(tx_data);
-    return;
+    // lora.startTransmit(tx_data);
+    // return;
 
     static smart_delay nb_trx(2000ul, millis);
 

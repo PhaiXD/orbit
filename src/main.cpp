@@ -352,6 +352,9 @@ void loop()
     }
 }
 
+
+/* ======================================= LOOP */
+
 void led_control()
 {
     // digitalWrite(ledPin4, !digitalRead(ledPin4));
@@ -374,12 +377,12 @@ void read_gnss()
     }
     // data.gps_latitude = 25;
     
-    if(data.gps_latitude != 0){
-        digitalWrite(ledPin4, 1);
-    }
-    else{
-        digitalWrite(ledPin4, 0);
-    }
+    // if(data.gps_latitude != 0){
+    //     digitalWrite(ledPin4, 1);
+    // }
+    // else{
+    //     digitalWrite(ledPin4, 0);
+    // }
 }
 
 void read_bme()
@@ -445,16 +448,6 @@ void init_storage(FsUtil<SdType, FileType> &sd_util_instance)
 
 void save_data()
 {
-    // static time_type prev = *interval_ms;
-    // static smart_delay sd(*interval_ms, millis);
-    // static smart_delay sd_save(1000, millis);
-
-    // if (prev != *interval_ms)
-    // {
-    //     sd.set_interval(*interval_ms);
-    //     prev = *interval_ms;
-    // }
-
     if(millis() > nowTime.log_data + plusTime.log_data){
         sd_util.file() << constructed_data;
         //  Serial.println("Data written and flushed.");
