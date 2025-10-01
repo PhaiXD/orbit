@@ -423,10 +423,10 @@ void setup()
 
                << task_type(read_gnss, 100ul, millis, 2)
 
-               << task_type(transmit_receive_data, 1000ul, millis, 252)
-            //    << task_type(print_data, 1000ul, millis, 253)
-               << task_type(construct_data, 25ul, millis, 254)
-               << (task_type(save_data, &log_interval, 255), pvalid.sd);
+            //    << task_type(transmit_receive_data, 1000ul, millis, 252) 
+               << task_type(print_data, 1000ul, millis, 253)
+               << task_type(construct_data, 25ul, millis, 254);
+            //    << (task_type(save_data, &log_interval, 255), pvalid.sd);
 
     // Low power mode
     // LowPower.begin();
