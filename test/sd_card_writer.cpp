@@ -17,6 +17,8 @@ extern void init_storage(FsUtil<SdFat32, File32> &sd_util_instance);
 #define THIS_FILE_PREFIX "ORBIT_LOGGER_KENDOs"
 #define THIS_FILE_EXTENSION "CSV"
 
+String constructed_data;
+
 struct{
   uint32_t flush = millis();
   uint32_t save = millis();
@@ -50,6 +52,8 @@ void setup(){
   Serial.begin(115200);
 
   spi1.begin();
+
+  delay(1000);
   
   pvalid.sd = sd_util.sd().begin(sd_config);
   if(pvalid.sd){
@@ -63,6 +67,7 @@ void setup(){
 
 void loop(){
   save_data();
+  constructed_data = String(millis()) + '\n';
 }
 
 template <typename SdFat32, typename File32>
@@ -75,9 +80,9 @@ void init_storage(FsUtil<SdFat32, File32> &sd_util_instance)
 void save_data()
 {
 
-    if(millis() - timer.save > 100){
-      sd_util.file() << millis();
-      Serial.println("Data written.");
+    if(millis() - timer.save > 400){
+      sd_util.file() << constructed_data;
+      Serial.println("Data written: " + String(constructed_data));
       timer.save = millis();
     }
 

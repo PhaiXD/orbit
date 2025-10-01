@@ -424,7 +424,7 @@ void construct_data()
         String(data.press) + ',' +
         String(data.acc.x) + ',' + 
         String(data.acc.y) + ',' + 
-        String(data.acc.z);
+        String(data.acc.z) + '\n';
 
     tx_data = "";
     tx_data += 
