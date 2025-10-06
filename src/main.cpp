@@ -193,38 +193,15 @@ extern void init_storage(FsUtil<SdType, FileType> &sd_util_instance);
 
 void setup()
 {
-    Serial.begin(460800);
-    delay(2000);
-
-    i2c1.begin();
-    i2c1.setClock(300000u);
-
-    spi1.begin();
-
-    setupLED();
-    setupSD();
-    setupLoRa();
-    setupIMU();
-    setupBME();
-    setupGNSS();
-
-    Serial.println("START TASK");
+    //type code here
 }
+
+/* ======================================= LOOP ======================================= */
 
 void loop()
 {
-    handleGNSS();
-    handleBME();
-    handleIMU();
-    handleConstruct();
-    handleTransmit();
-    handleSave();
-    handlePrint();
-    handleState();
+    //type code here
 }
-
-
-/* ======================================= LOOP ======================================= */
 
 void led_control()
 {
