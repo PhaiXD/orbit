@@ -524,13 +524,13 @@ void print_data()
     Serial.print("  Z: ");
     Serial.println(data.acc.z, 3);
 
-    Serial.println("---- VEL ----");
+    /* Serial.println("---- VEL ----");
     Serial.print("X: ");
     Serial.print(data.vel.x, 3);
     Serial.print("  Y: ");
     Serial.print(data.vel.y, 3);
     Serial.print("  Z: ");
-    Serial.println(data.vel.z, 3);
+    Serial.println(data.vel.z, 3); */
 
 
     // Serial to ground web
