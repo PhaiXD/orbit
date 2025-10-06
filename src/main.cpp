@@ -176,6 +176,15 @@ extern void setupIMU();
 extern void setupBME();
 extern void setupGNSS();
 
+extern void handleGNSS();
+extern void handleBME();
+extern void handleIMU();
+extern void handleConstruct();
+extern void handleTransmit();
+extern void handleSave();
+extern void handlePrint();
+extern void handleState();
+
 
 template <typename SdType, typename FileType>
 extern void init_storage(FsUtil<SdType, FileType> &sd_util_instance);
@@ -204,46 +213,14 @@ void setup()
 
 void loop()
 {
-    
-    if(millis() > nowTime.read_gnss + plusTime.read_gnss){
-        read_gnss();
-        nowTime.read_gnss = millis();
-    }
-
-    if(millis() > nowTime.read_bme + plusTime.read_bme){
-        read_bme();
-        nowTime.read_bme = millis(); // BME
-    }
-
-    if(millis() > nowTime.read_imu + plusTime.read_imu){
-        read_imu();
-        nowTime.read_imu = millis(); // IMU
-    }
-
-    if(millis() > nowTime.construct_data + plusTime.construct_data){
-        construct_data();
-        nowTime.construct_data = millis();
-    }
-
-    if(millis() > nowTime.transmit_data + plusTime.transmit_data){
-        transmit_data();
-        nowTime.transmit_data = millis(); // LORA
-    }
-
-    if(millis() > nowTime.save_data + plusTime.save_data){
-        save_data();
-        nowTime.save_data = millis(); // SD card
-    }
-
-    if(millis() > nowTime.print_data + plusTime.print_data){
-        print_data();
-        nowTime.print_data = millis();
-    }
-
-    if(millis() > nowTime.check_state + plusTime.check_state){
-        check_state();
-        nowTime.check_state = millis();
-    }
+    handleGNSS();
+    handleBME();
+    handleIMU();
+    handleConstruct();
+    handleTransmit();
+    handleSave();
+    handlePrint();
+    handleState();
 }
 
 
@@ -573,4 +550,61 @@ void setupBME() {
 
 void setupGNSS() {
     gnssSerial.begin(115200);
+}
+
+// Loop function
+void handleGNSS() {
+    if (millis() > nowTime.read_gnss + plusTime.read_gnss) {
+        read_gnss();
+        nowTime.read_gnss = millis();
+    }
+}
+
+void handleBME() {
+    if (millis() > nowTime.read_bme + plusTime.read_bme) {
+        read_bme();
+        nowTime.read_bme = millis();
+    }
+}
+
+void handleIMU() {
+    if (millis() > nowTime.read_imu + plusTime.read_imu) {
+        read_imu();
+        nowTime.read_imu = millis();
+    }
+}
+
+void handleConstruct() {
+    if (millis() > nowTime.construct_data + plusTime.construct_data) {
+        construct_data();
+        nowTime.construct_data = millis();
+    }
+}
+
+void handleTransmit() {
+    if (millis() > nowTime.transmit_data + plusTime.transmit_data) {
+        transmit_data();
+        nowTime.transmit_data = millis();
+    }
+}
+
+void handleSave() {
+    if (millis() > nowTime.save_data + plusTime.save_data) {
+        save_data();
+        nowTime.save_data = millis();
+    }
+}
+
+void handlePrint() {
+    if (millis() > nowTime.print_data + plusTime.print_data) {
+        print_data();
+        nowTime.print_data = millis();
+    }
+}
+
+void handleState() {
+    if (millis() > nowTime.check_state + plusTime.check_state) {
+        check_state();
+        nowTime.check_state = millis();
+    }
 }
