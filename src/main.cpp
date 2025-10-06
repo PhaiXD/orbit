@@ -192,103 +192,13 @@ void setup()
 
     spi1.begin();
 
-    // GPIO
-    pinMode(ledPin1, OUTPUT); // LED
-    pinMode(ledPin2, OUTPUT); // LED
-    pinMode(ledPin3, OUTPUT); // LED
-    pinMode(ledPin4, OUTPUT); // LED
+    setupLED();
+    setupSD();
+    setupLoRa();
+    setupIMU();
+    setupBME();
+    setupGNSS();
 
-    digitalWrite(ledPin1, HIGH);
-    digitalWrite(ledPin2, HIGH);
-    digitalWrite(ledPin3, HIGH);
-    digitalWrite(ledPin4, HIGH);
-    delay(200); // 200 ms ON
-
-    // Turn all LEDs OFF
-    digitalWrite(ledPin1, LOW);
-    digitalWrite(ledPin2, LOW);
-    digitalWrite(ledPin3, LOW);
-    digitalWrite(ledPin4, LOW);
-    // variable
-    static bool state;
-
-    pinMode(LORA_NSS, OUTPUT);
-    digitalWrite(LORA_NSS, HIGH); // deselect LoRa
-
-    // pinMode(PIN_NSS_SD, OUTPUT);
-    // digitalWrite(PIN_NSS_SD, HIGH); // idle SD CS high
-
-    /* ==================================== SD card ==================================== */
-
-    sd_util.sd().begin(sd_config);
-
-    init_storage(sd_util);
-    Serial.println("SD SUCESS");
-    digitalWrite(ledPin1, 1);
-    
-
-    /* ==================================== LoRa ==================================== */
-
-    int lora_state = lora.begin(params.center_freq,
-                                     params.bandwidth,
-                                     params.spreading_factor,
-                                     params.coding_rate,
-                                     params.sync_word,
-                                     params.power,
-                                     params.preamble_length,
-                                     0,
-                                     false);
-    state = state || lora.explicitHeader();
-    state = state || lora.setCRC(true);
-    state = state || lora.autoLDRO();
-
-    lora.setPacketSentAction(set_txflag);
-
-    if (lora_state == RADIOLIB_ERR_NONE)
-    {
-        Serial.println("SX1262 initialized successfully!");
-        digitalWrite(ledPin2, 1);
-    }
-    else
-    {
-        Serial.print("Initialization failed! Error: ");
-        while (true){
-            Serial.println(lora_state);
-            delay(1000);
-        }
-    }
-
-    /* ==================================== LIS3DHTR (IMU) ==================================== */
-
-    imu.begin(i2c1,0x18);
-    
-    imu.setFullScaleRange(LIS3DHTR_RANGE_16G); // 6, 12, or 24 G
-    imu.setOutputDataRate(LIS3DHTR_DATARATE_1_6KH);
-    
-    /* ==================================== lc86g UARTS ==================================== */
-
-    gnssSerial.begin(115200);
-
-    /* ==================================== bme280 ==================================== */
-
-    float gnd = 0.f;
-
-    if(!bme1.begin(0x76, &i2c1)){
-        Serial.println("BME NOT FOUND");
-    }
-    else
-    {
-        bme1.SAMPLING_X16;
-        for (size_t i = 0; i < 20; ++i)
-        {
-            read_bme();
-        }
-        gnd += data.altitude;
-    }
-    ground_truth.altitude_offset = gnd;
-
-    /* ==================================== START ==================================== */
-   
     Serial.println("START TASK");
 }
 
