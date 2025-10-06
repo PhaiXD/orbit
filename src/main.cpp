@@ -364,14 +364,6 @@ void read_imu()
     data.acc.x = imu.getAccelerationX();
     data.acc.y = imu.getAccelerationY();
     data.acc.z = imu.getAccelerationZ();
-    calculate_vel();
-}
-
-void calculate_vel()
-{
-    data.vel.x += data.acc.x * (plusTime.read_imu/1000.0f);
-    data.vel.y += data.acc.y * (plusTime.read_imu/1000.0f);
-    data.vel.z += data.acc.z * (plusTime.read_imu/1000.0f);
 }
 
 void construct_data()
@@ -394,14 +386,17 @@ void construct_data()
 
     tx_data = "";
     tx_data += 
-        "<20>" + ',' + // DEVICE NO 
-        String(params.center_freq) + ',' +
-        String(data.counter) + ',' +
-        data.state + ',' +
+        String(data.acc.x) + ',' +
+        String(data.acc.y) + ',' +
+        String(data.acc.z) + ',' +
         String(data.gps_latitude, 6) + ',' +
         String(data.gps_longitude, 6) + ',' +
+        String(data.temp, 4) + ',' +
+        String(data.press, 4) + ',' +
         String(data.altitude, 4) + ',' +
-        String(ground_truth.apogee, 4);
+        String(data.humidity, 4) + ',' +
+        String(max(0,(data.altitude - ground_truth.altitude_offset)), 4) + ',' +
+        data.state;
 }
 
 
@@ -446,8 +441,12 @@ void transmit_data()
 void check_state()
 {
     const double alt_x = data.altitude - ground_truth.altitude_offset;
-    const double vel_x = data.vel.x;
-    const double acc = data.acc.x;
+    //const double vel_x = data.vel.x;
+    const double acc = data.acc.y;
+
+    if(apogee - alt_x > 200){
+        data.state = "MAIN DEPLOY";
+    }
 
     if(data.state == "GROUND")
     {
@@ -468,8 +467,18 @@ void check_state()
     else if(data.state == "COASTING")
     {
         // Next: AT APOGEE WAIT FOR LANDING
-        if(vel_x < APOGEE_VEL){
+        if(vel_x < APOGEE_VEL || apogee - alt_x > 10){
             plusTime.log_data = LOG_LANDED_INTERVAL;
+            data.state = "MAIN DEPLOY";
+        }
+    }
+    else if(data.state == "MAIN DEPLOY"){
+        if(alt_x <= 150){
+            data.state = "SECOND DEPLOY";
+        }
+    }
+    else if(data.state == "SECOND DEPLOY"){
+        if(alt_x <= 40){
             data.state = "LANDED";
         }
     }
