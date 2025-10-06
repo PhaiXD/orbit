@@ -467,7 +467,7 @@ void check_state()
     else if(data.state == "COASTING")
     {
         // Next: AT APOGEE WAIT FOR LANDING
-        if(vel_x < APOGEE_VEL || apogee - alt_x > 10){
+        if(apogee - alt_x > 10){
             plusTime.log_data = LOG_LANDED_INTERVAL;
             data.state = "MAIN DEPLOY";
         }
