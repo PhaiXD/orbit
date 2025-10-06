@@ -167,8 +167,20 @@ extern void check_state();
 
 extern void set_txflag();
 
+extern float max(float a, float b);
+
+extern void setupLED();
+extern void setupSD();
+extern void setupLoRa();
+extern void setupIMU();
+extern void setupBME();
+extern void setupGNSS();
+
+
 template <typename SdType, typename FileType>
 extern void init_storage(FsUtil<SdType, FileType> &sd_util_instance);
+
+    /* ==================================== SET UP ==================================== */
 
 void setup()
 {
@@ -444,7 +456,7 @@ void check_state()
     //const double vel_x = data.vel.x;
     const double acc = data.acc.y;
 
-    if(apogee - alt_x > 200){
+    if(ground_truth.apogee - alt_x > 200){
         data.state = "MAIN DEPLOY";
     }
 
@@ -467,7 +479,7 @@ void check_state()
     else if(data.state == "COASTING")
     {
         // Next: AT APOGEE WAIT FOR LANDING
-        if(apogee - alt_x > 10){
+        if(ground_truth.apogee - alt_x > 10){
             plusTime.log_data = LOG_LANDED_INTERVAL;
             data.state = "MAIN DEPLOY";
         }
@@ -559,4 +571,96 @@ void print_data()
 void set_txflag()
 {
     tx_flag = false;
+}
+
+float max(float a, float b)
+{
+    return (a > b) ? a : b;
+}
+
+// Setup function
+
+void setupLED() {
+    pinMode(ledPin1, OUTPUT);
+    pinMode(ledPin2, OUTPUT);
+    pinMode(ledPin3, OUTPUT);
+    pinMode(ledPin4, OUTPUT);
+
+    digitalWrite(ledPin1, HIGH);
+    digitalWrite(ledPin2, HIGH);
+    digitalWrite(ledPin3, HIGH);
+    digitalWrite(ledPin4, HIGH);
+    delay(200);
+
+    digitalWrite(ledPin1, LOW);
+    digitalWrite(ledPin2, LOW);
+    digitalWrite(ledPin3, LOW);
+    digitalWrite(ledPin4, LOW);
+}
+
+void setupSD() {
+    sd_util.sd().begin(sd_config);
+    init_storage(sd_util);
+    Serial.println("SD SUCCESS");
+    digitalWrite(ledPin1, 1);
+}
+
+void setupLoRa() {
+    pinMode(LORA_NSS, OUTPUT);
+    digitalWrite(LORA_NSS, HIGH);
+
+    int lora_state = lora.begin(
+        params.center_freq,
+        params.bandwidth,
+        params.spreading_factor,
+        params.coding_rate,
+        params.sync_word,
+        params.power,
+        params.preamble_length,
+        0,
+        false
+    );
+
+    bool state = false;
+    state = state || lora.explicitHeader();
+    state = state || lora.setCRC(true);
+    state = state || lora.autoLDRO();
+    lora.setPacketSentAction(set_txflag);
+
+    if (lora_state == RADIOLIB_ERR_NONE) {
+        Serial.println("SX1262 initialized successfully!");
+        digitalWrite(ledPin2, 1);
+    } else {
+        Serial.print("Initialization failed! Error: ");
+        while (true) {
+            Serial.println(lora_state);
+            delay(1000);
+        }
+    }
+}
+
+void setupIMU() {
+    imu.begin(i2c1, 0x18);
+    imu.setFullScaleRange(LIS3DHTR_RANGE_16G);
+    imu.setOutputDataRate(LIS3DHTR_DATARATE_1_6KH);
+}
+
+void setupBME() {
+    float gnd = 0.f;
+
+    if (!bme1.begin(0x76, &i2c1)) {
+        Serial.println("BME NOT FOUND");
+    } else {
+        bme1.SAMPLING_X16;
+        for (size_t i = 0; i < 20; ++i) {
+            read_bme();
+        }
+        gnd += data.altitude;
+    }
+
+    ground_truth.altitude_offset = gnd;
+}
+
+void setupGNSS() {
+    gnssSerial.begin(115200);
 }
